@@ -1,0 +1,22 @@
+@startuml
+skin rose
+title Customer Order Workflow
+actor Customer
+participant Website
+participant OrderService
+participant CustomerService
+Customer -> Website: Place Order
+Website -> OrderService: **PlaceOrder** (customerId, items)
+OrderService -> CustomerService: **GetCustomer** (customerId)
+CustomerService --> OrderService: Customer
+OrderService -> OrderService: Evaluate Customer State
+alt Customer.getState() is DISABLED
+  OrderService --> Website: CustomerAccountDisabledException
+else Customer.getState() is ACTIVE
+  loop for each item in items
+    note right of OrderService: TODO: use batch instead of loop
+    OrderService -> OrderService: saveItem
+  end loop
+  OrderService --> Website: Success
+end alt
+@enduml
